@@ -8,6 +8,7 @@ import (
 	"ssoAuth/internal/domain/models"
 	"ssoAuth/internal/lib/jwt"
 	"ssoAuth/internal/storage"
+	"ssoAuth/internal/storage/sqlite"
 	"time"
 
 	"golang.org/x/crypto/bcrypt"
@@ -26,7 +27,7 @@ type UserSaver interface {
 		ctx context.Context,
 		email string,
 		passHash []byte,
-	) (uint64, error)
+	) (int64, error)
 }
 
 type UserProvider interface {
@@ -45,13 +46,7 @@ var (
 )
 
 // New returns a new instance of the Auth service.
-func New(
-	log *slog.Logger,
-	userSaver UserSaver,
-	userProvider UserProvider,
-	appProvider AppProvider,
-	tokenTTL time.Duration,
-) *Auth {
+func New(log *slog.Logger, userSaver *sqlite.Storage, userProvider UserProvider, appProvider AppProvider, tokenTTL time.Duration) *Auth {
 	return &Auth{
 		userSaver:    userSaver,
 		userProvider: userProvider,
@@ -117,7 +112,7 @@ func (a *Auth) RegisterNewUser(
 	ctx context.Context,
 	email string,
 	password string,
-) (uint64, error) {
+) (int64, error) {
 	const op = "auth.RegisterNewUser"
 
 	log := a.log.With(

@@ -54,7 +54,6 @@ func (s *serverAPI) Login(
 	token, err := s.auth.Login(ctx, req.GetEmail(), req.GetPassword(), int(req.GetAppId()))
 
 	if err != nil {
-		//TODO: ...
 		return nil, status.Error(codes.Unauthenticated, err.Error())
 	}
 
@@ -74,8 +73,7 @@ func (s *serverAPI) Register(
 	userID, err := s.auth.RegisterNewUser(ctx, req.GetEmail(), req.GetPassword())
 
 	if err != nil {
-		// TODO: ...
-		return nil, status.Error(codes.Internal, "failed to register new user")
+		return nil, status.Error(codes.AlreadyExists, "failed to register new user")
 	}
 
 	return &ssov1.RegisterResponse{
